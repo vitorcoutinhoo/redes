@@ -5,53 +5,62 @@
 # Responsável por mostrar a configuração da votação e armazenar a contagem de votos
 
 import socket
-from config import vote_config, voted_users, in_list
+from config import vote_config, voted_users, in_list, create_arqv
 
 
 # Host e porta do servidor
 HOST = "127.0.0.1"
 PORT = 65432
 
+VOTELIST = "voted_users.csv"
+create_arqv(VOTELIST)
 
 # recebe a configuração da votação
 config = vote_config()
 votes = [0] * len(config["options"])
 
 
-# interface com o usuário
+# Interface com o usuário
 def handle_client(conn, addr):
-    # mostra o Título da votação
+    
+    # Mostra o título da votação
     conn.sendall(f"{config['title']}\n".encode())
 
-    # pede identificação do usuário
+    # Pede identificação do usuário
     conn.sendall("Digite o seu identificador: ".encode())
-    
-    # recebe a identificação do usuário
+
+    # Recebe a identificação do usuário
     user_id = conn.recv(1024).decode().strip()
-    if in_list(user_id): # verifica se o usuário já votou
+    if in_list(VOTELIST, user_id):  # Verifica se o usuário já votou
         conn.sendall("Voto único por pessoa!\n".encode())
+        conn.close()
         return
-    else: # se o usuário não votou, adiciona o usuário à lista de votantes
-        voted_users(user_id)
+    else:  # Se o usuário não votou, adiciona o usuário à lista de votantes
+        voted_users(VOTELIST, user_id)
 
         conn.sendall(f"{config['description']}\n".encode())
-        for i, option in enumerate(config["options"]):
-            conn.sendall(f"{i + 1}. {option['name']} - {option['description']}\n".encode())
         
-        while True:
-            conn.sendall("Digite o número do candidato: ".encode())
-            vote = int(conn.recv(1024).decode().strip())
+        # Envia todas as opções de voto em uma única mensagem, separadas por '|'
+        options_msg = "|".join([f"{i + 1}. {option['name']} - {option['description']}" for i, option in enumerate(config["options"])])
+        conn.sendall(options_msg.encode())
 
-            if 1 <= vote <= len(config["options"]):
-                votes[vote - 1] += 1
-                conn.sendall("Voto computado com sucesso!\n".encode())
-                break
-            else:
-                conn.sendall("Número desconhecido!\n".encode())
-    
+        # Envia uma string vazia para indicar o fim da lista de opções
+        conn.sendall("\n".encode())
+
+        # Recebe o voto do usuário
+        vote = conn.recv(1024).decode().strip()
+        vote = int(vote)
+
+        if 1 <= vote <= len(config["options"]):
+            votes[vote - 1] += 1
+            conn.sendall("Voto computado com sucesso!\n".encode())
+        else:
+            conn.sendall("Número desconhecido!\n".encode())
+
     conn.sendall("Obrigado por votar!\n".encode())
     conn.close()
-            
+
+
 def start_server():
     # cria o socket
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:

@@ -21,23 +21,25 @@ def vote_config():
     }
 
 
-# Configuração da lista de votantes
-def voted_users(user_id):
+def create_arqv(arqv):
     """
-    Adiciona um usuário à lista de votantes
+    Cria o arquivo de votantes
     """
-    i = 1
-    with open("voted_users.csv", "a", encoding="utf-8") as f:
-        f.write(i + ", " + user_id + "\n")
-        i += 1
+    with open(arqv, "w", encoding="utf-8"):
+        pass
+    
+def voted_users(arqv, user_id):
+    """
+    Adiciona o usuário à lista de votantes
+    """
+    with open(arqv, "a", encoding="utf-8") as f:
+        f.write(user_id + "\n")
 
-
-def in_list(user_id):
+def in_list(arqv, user_id):
     """
-    Verifica se um usuário está na lista de votantes
+    Verifica se o usuário já votou
     """
-    with open("voted_users.csv", "r", encoding="utf-8") as f:
-        for line in f:
-            if user_id in line:
-                return True
+    with open(arqv, "r", encoding="utf-8") as f:
+        if user_id in f.read():
+            return True
         return False
