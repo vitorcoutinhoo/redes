@@ -56,14 +56,15 @@ O código server.py é responsável por inicializar o servidor, ou seja ao execu
 O código interface.py é responsável por executar a parte do client, lembre-se de sempre colocar o mesmo IP do servidor.
 
 O código deve ser executado na seguinte ordem:
-1) python server.py
-Aqui deve ser introduzido as informações da votação, na seguinte ordem:
-- Título da votação
-- Descrição da votação
-- Candidatos ou chapas ou opções dos votos
-Aqui deve ser introduzido os nomes das opções de voto e depois uma descrição. Quando terminar de introduzir os nomes das opções de voto, digite '.' e o servidor começará a rodar
-2) python interface.py
-A interface irá ser executada com as informações setadas no servidor, permitindo uma votação distribuida com um socket TCP de confiança.
+1) ` python server.py `
+
+-Aqui deve ser introduzido as informações da votação, na seguinte ordem:
+  - Título da votação
+  - Descrição da votação
+  - Candidatos ou chapas ou opções dos votos
+    - Aqui deve ser introduzido os nomes das opções de voto e depois uma descrição. Quando terminar de introduzir os nomes das opções de voto, digite '.' e o servidor começará a rodar
+2) `python interface.py`
+- A interface irá ser executada com as informações setadas no servidor, permitindo uma votação distribuida com um socket TCP de confiança.
 
 
 ## Diagrama do Protocolo da Aplicação
