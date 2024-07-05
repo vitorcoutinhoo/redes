@@ -44,6 +44,11 @@ Escolhemos o protocolo de transporte TCP por sua confiabilidade na entrega de me
 
 ## Como Executar o projeto
 
+```bash
+python exemplo.py
+```
+Substitua exemplo.py pelo arquivo desejado.
+
 O código server.py é responsável por inicializar o servidor, ou seja ao executá-lo o servidor vai ser iniciado no IP (HOST) e na Porta especificada no código.
   - Caso queira testa em localhost o IP é 127.0.0.1.
   - Caso queria executar o servidor em outra máquina o IP vai ser o Ipv4 desta máquina.
