@@ -1,45 +1,37 @@
-# Universidade Estadual de Santa Cruz
-# Autores: Bruno Santos, Daniel Lago, Kauan Teles, Vítor Coutinho
-
-# Codigo da configuração da votação
-# Responsável por configurar a votação
 
 
-# Configuração da votação
-def vote_config():
-    """
-    Retorna a configuração da votação: título, descrição e candidatos
-    """
-    return {
-        "title": "Eleição de Centro Acadêmico",
-        "description": "Vote no seu candidato favorito para o Centro Acadêmico de Ciência da Computação",
-        "options": [
-            {"name": "Candidato 1", "description": "Descrição do candidato 1"},
-            {"name": "Candidato 2", "description": "Descrição do candidato 2"},
-            {"name": "Candidato 3", "description": "Descrição do candidato 3"},
-        ],
-    }
+#Tem a responsabilidade de guardar dados a respeito da votação
+class ConfiguracaoVotacao:
+    def __init__(self):
+        self.title = "Eleição de Centro Acadêmico"
+        self.description = "Vote no seu candidato favorito para o Centro Acadêmico de Ciência da Computação"
+        self.candidatos = [{"nome":"Daniel","descricao":"Deseja trazer inovações para o curso"},{"nome":"Vitor","descricao":"Quer instalar novas máquinas potentes"}]
+        self.votos = [0 for n in self.candidatos]
+        self.users = {}
 
-
-def create_arqv(arqv):
-    """
-    Cria o arquivo de votantes
-    """
-    with open(arqv, "w", encoding="utf-8"):
-        pass
-    
-def voted_users(arqv, user_id):
-    """
-    Adiciona o usuário à lista de votantes
-    """
-    with open(arqv, "a", encoding="utf-8") as f:
-        f.write(user_id + "\n")
-
-def in_list(arqv, user_id):
-    """
-    Verifica se o usuário já votou
-    """
-    with open(arqv, "r", encoding="utf-8") as f:
-        if user_id in f.read():
+    #Registra o voto de um usuario para um determinado candidato
+    def registrar_voto(self, opcao, userid):
+        if not isinstance(opcao,int):
+            return False
+        if 1 <= opcao <= len(self.candidatos):    
+                self.votos[opcao - 1] += 1
+                self.users[userid] = opcao
+                return True
+        else:
+            return False
+    #Verifica se determinado usuario já fez a votação
+    def usuarioJaVotou(self,userid):
+        if userid in self.users.keys():
             return True
-        return False
+        else:
+             return False
+    #Adiciona o usuario na lista de usuario enquanto ele ainda esta votando
+    def add_usuario_votando(self,userid):
+        self.users[userid] = -1
+    
+    #Mostra o estado atual da votação, quantos votos tem os candidatos
+    def estadoAtual(self):
+        str = "ESTADO ATUAL VOTACAO: \n"
+        for i,candidato in enumerate(self.candidatos):
+            str += f"Candidato {i+1} -- {candidato["nome"]} -----> {self.votos[i]}\n"
+        return str

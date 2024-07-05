@@ -1,55 +1,64 @@
-# Universidade Estadual de Santa Cruz
-# Autores: Bruno Santos, Daniel Lago, Kauan Teles, Vítor Coutinho
-
-# Codigo do cliente
-# Responsável por mostrar a configuração da votação e enviar o voto ao servidor
-
 import socket
+import json
+from typing import Dict, Any, Union
 
-# Host e porta do servidor
-HOST = "127.0.0.1"
+# Configurações do servidor
+SERVER_IP = "127.0.0.1"
 PORT = 65432
 
-
-def start_client():
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((HOST, PORT))
+#Responsavel por efetuar conexão socket com o servidor, trocando mensagens JSON com ele de acordo
+#Com o protocolo de aplicação estabelecido
+class Cliente:
+    #Seta as configuração de endereçamento para conexão
+    def __init__(self, server_ip: str, port: int):
+        self.server_ip = server_ip
+        self.port = port
+        self.conexao = None
         
-        while True:
-            # Recebe e exibe o título da votação
-            title = s.recv(1024).decode()
-            print(title)
-            
-            # Recebe a mensagem pedindo o identificador do usuário
-            user_prompt = s.recv(1024).decode()
-            user_id = input(user_prompt)
-            s.sendall(user_id.encode())
-            
-            # Verifica se o usuário já votou
-            response = s.recv(1024).decode()
-            if "Voto único por pessoa!" in response:
-                print(response)
-                continue
-            
-            # Recebe e exibe a descrição da votação
-            description = response
-            print(description)
-            
-            # Recebe e exibe todas as opções de voto
-            options_msg = s.recv(1024).decode()
-            options = options_msg.split('|')
-            for option in options:
-                print(option)
-            
-            vote = input("Digite o número da opção desejada: ")
-            s.sendall(vote.encode())
-            
-            response = s.recv(1024).decode()
-            print(response)
-            
-            # Agradecimento final
-            thank_you = s.recv(1024).decode()
-            print(thank_you)
+        #Buffer para receber dados do servidor e possibilitar recuperá-los em json
+        self.buffer = ""
+    
+    #Cria conexão socket com o servidor a partir das configurações iniciais
+    def conectar(self):
+        try:
+            self.conexao = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.conexao.connect((self.server_ip, self.port))
+        except (socket.error, ConnectionRefusedError) as e:
+            print(f"Erro ao conectar ao servidor: {e}")
+            raise
 
-if __name__ == "__main__":
-    start_client()
+    #Envia mensagem em formato JSON para o servidor
+    def enviar_mensagem(self, mensagem: Union[Dict[str, Any], str]):
+        try:
+            if isinstance(mensagem, dict):
+                mensagem_str = json.dumps(mensagem)
+            else:
+                mensagem_str = mensagem
+            self.conexao.sendall(mensagem_str.encode())
+        except (socket.error, socket.timeout, ConnectionResetError, BrokenPipeError) as e:
+            print(f"Erro ao enviar mensagem: {e}")
+            self.fechar_conexao()
+
+    #Recebe e decodifica mensagens em JSON para o servidor
+    def receber_mensagem(self) -> Dict[str, Any]:
+        try:
+            while True:
+                data = self.conexao.recv(1024).decode()
+                self.buffer += data
+                if '\n' in self.buffer:
+                    mensagem_json = self.buffer[:self.buffer.index('\n')]
+                    self.buffer = self.buffer[self.buffer.index('\n') + 1:]
+                    return json.loads(mensagem_json.strip())
+        except (socket.error, socket.timeout, ConnectionResetError, json.JSONDecodeError) as e:
+            print(f"Erro ao receber mensagem: {e}")
+            self.fechar_conexao()
+            return {}
+
+    #Fecha a conexão do socket com o servidor
+    def fechar_conexao(self):
+        if self.conexao:
+            try:
+                self.conexao.close()
+            except socket.error as e:
+                print(f"Erro ao fechar conexão: {e}")
+
