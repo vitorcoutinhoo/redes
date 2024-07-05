@@ -5,8 +5,6 @@ from config import ConfiguracaoVotacao as config
 from typing import Dict, Any, Union
 import sys
 import signal
-
-
 # Host e porta do servidor
 HOST = "127.0.0.1"
 PORT = 65432
@@ -103,7 +101,8 @@ class ProcessadorVotacao:
             #PRinta no console o estado atual da votação
             print(self.config.estadoAtual())
 
-
+        except Exception as e:
+            print(f'--- Conexao com {self.cliente_handler.endereco} caiu --- ')
         finally:
             #Fecha a conexão com o respectivo cliente
             self.cliente_handler.fechar_conexao()
@@ -132,7 +131,7 @@ class ServidorVotacao:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as servidor_socket:
             servidor_socket.bind((self.host, self.port))
             servidor_socket.listen()
-            print(f"Servidor rodando em {self.host}:{self.port}")
+            print(f"\n -^^ Servidor rodando em {self.host}:{self.port} ^^- \n")
             while True:
                 try:
                     #Recebe conexão de cliente especifico e joga o tratamento para uma thread separada
