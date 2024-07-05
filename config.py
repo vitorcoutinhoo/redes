@@ -3,9 +3,9 @@
 #Tem a responsabilidade de guardar dados a respeito da votação
 class ConfiguracaoVotacao:
     def __init__(self):
-        self.title = "Eleição de Centro Acadêmico"
-        self.description = "Vote no seu candidato favorito para o Centro Acadêmico de Ciência da Computação"
-        self.candidatos = [{"nome":"Daniel","descricao":"Deseja trazer inovações para o curso"},{"nome":"Vitor","descricao":"Quer instalar novas máquinas potentes"}]
+        self.title = self.setTitle()
+        self.description = self.setDescription()
+        self.candidatos = self.setCandidatos()
         self.votos = [0 for n in self.candidatos]
         self.users = {}
 
@@ -19,6 +19,28 @@ class ConfiguracaoVotacao:
                 return True
         else:
             return False
+
+    #Seta o nome da votação
+    def setTitle(self):
+        title = str(input('Digite o nome da votação: '))
+        return title
+    #Seta a descrição da votação
+    def setDescription(self):
+        description = str(input('Escreva a descrição da votação: '))
+        return description
+    #Seta as opções de voto
+    def setCandidatos(self):
+        lista = []
+        status = True
+        print('-- A seguir, insira as opções de voto --')
+        while status != '.':
+            status = str(input("Digite o nome da opção de voto(Digite '.' para executar o server: "))
+            if status == '.':
+                break
+            else:
+                desc =str(input("Escreva descrição dessa opcao de voto: "))
+                lista.append({"nome":status,"descricao":desc})
+        return lista
     #Verifica se determinado usuario já fez a votação
     def usuarioJaVotou(self,userid):
         if userid in self.users.keys():
@@ -31,7 +53,7 @@ class ConfiguracaoVotacao:
     
     #Mostra o estado atual da votação, quantos votos tem os candidatos
     def estadoAtual(self):
-        str = "ESTADO ATUAL VOTACAO: \n"
+        str = "\nESTADO ATUAL VOTACAO: \n"
         for i,candidato in enumerate(self.candidatos):
             str += f"Candidato {i+1} -- {candidato["nome"]} -----> {self.votos[i]}\n"
         return str
