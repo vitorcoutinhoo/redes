@@ -10,7 +10,7 @@ cliente - servidor. O sistema permite que os usuários votem em candidatos para 
 
 - Kauan Teles
 
-- Vítor Coutinho
+- Vitor Coutinho
 
 ## Propósito do Software
 
