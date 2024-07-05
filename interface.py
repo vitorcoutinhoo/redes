@@ -7,7 +7,7 @@ from tkinter import messagebox
 from tkinter.simpledialog import askstring
 
 # Configurações do servidor
-SERVER_IP = "192.168.5.22"
+SERVER_IP = "127.0.0.1"
 PORT = 65432
 
 
